@@ -44,15 +44,31 @@ void Minion::attack(Minion* target) {
 void Minion::useAbility(Player* p) {
     if (!getAbility()) throw std::runtime_error("Minion has no ability.");
     spendAction();
-    p->spendMagic(getAbilityCost());
-    getAbility()->apply(p, nullptr, -1);
+    int oldMagic = p->getMagic();
+    try {
+        p->spendMagic(getAbilityCost());
+        getAbility()->apply(p, nullptr, -1);
+    } catch (...) {
+        if (p->getMagic() < oldMagic) {
+            p->gainMagic(oldMagic - p->getMagic());
+        }
+        throw;
+    }
 }
 
 void Minion::useAbility(Player* p, Player* t, int i) {
     if (!getAbility()) throw std::runtime_error("Minion has no ability.");
     spendAction();
-    p->spendMagic(getAbilityCost());
-    getAbility()->apply(p, t, i);
+    int oldMagic = p->getMagic();
+    try {
+        p->spendMagic(getAbilityCost());
+        getAbility()->apply(p, t, i);
+    } catch (...) {
+        if (p->getMagic() < oldMagic) {
+            p->gainMagic(oldMagic - p->getMagic());
+        }
+        throw;
+    }
 }
 
 void Minion::useTrigger(TriggerType type, std::shared_ptr<Minion> target) {
