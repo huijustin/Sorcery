@@ -90,6 +90,11 @@ void Game::run() {
         try {
             process_command(cmd, ss);
         } catch (const std::exception& e) {
+            std::string errMsg = e.what();
+            if (errMsg == "Game quit by user.") {
+                std::cerr << e.what() << std::endl;
+                return;
+            }
             std::cerr << "Error: " << e.what() << std::endl;
         }
 

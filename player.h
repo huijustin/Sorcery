@@ -21,7 +21,7 @@ class Player {
     std::vector<std::shared_ptr<Card>> deck;
     std::vector<std::shared_ptr<Card>> hand;
     std::vector<std::shared_ptr<Minion>> minions;
-    std::vector<std::shared_ptr<Minion> > graveyard;
+    std::vector<std::shared_ptr<Minion>> graveyard;
     std::shared_ptr<Ritual> ritual;
 
 public:
