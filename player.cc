@@ -166,11 +166,19 @@ void Player::play(int i) {
     if (i < 0 || i >= (int)hand.size()) throw std::runtime_error("Invalid card index.");
     
     std::shared_ptr<Card> card_to_play = hand[i];
-    
-    spendMagic(card_to_play->getCost());
-    
-    // The card's play method will throw if it's an invalid play (e.g. enchantment w/o target)
-    card_to_play->play(this); 
+
+    // Record current magic to restore in case play fails
+    int oldMagic = magic;
+    try {
+        spendMagic(card_to_play->getCost());
+
+        // The card's play method will throw if it's an invalid play (e.g. enchantment w/o target)
+        card_to_play->play(this);
+    } catch (...) {
+        // Restore spent magic if any error occurred
+        magic = oldMagic;
+        throw;
+    }
     
     // If play was successful, remove the card from hand. Erasing by index is safe here
     // because the non-targeted play actions do not reorder the hand.
@@ -185,9 +193,15 @@ void Player::play(int i, int p, int t) {
     Player* target_player = game->getPlayer(p);
     if (!target_player) throw std::runtime_error("Invalid target player.");
 
-    spendMagic(card_to_play->getCost());
-    
-    card_to_play->play(this, target_player, t);
+    int oldMagic = magic;
+    try {
+        spendMagic(card_to_play->getCost());
+
+        card_to_play->play(this, target_player, t);
+    } catch (...) {
+        magic = oldMagic;
+        throw;
+    }
     
     // After the effect resolves, find the card in the hand again and erase it.
     // This is safe even if the hand was modified by the card's effect.
